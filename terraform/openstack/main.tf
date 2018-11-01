@@ -65,7 +65,9 @@ resource "openstack_compute_instance_v2" "icp-worker-vm" {
 }
 
 resource "openstack_compute_instance_v2" "icp-master-vm" {
-    name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
+    count     = "${var.icp_num_masters}"        #....addition
+    #name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
+    name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"          #....addition
     image_id  = "${var.openstack_image_id}"
     flavor_id = "${var.openstack_flavor_id_master_node}"
     key_pair  = "${openstack_compute_keypair_v2.icp-key-pair.name}"
@@ -75,6 +77,15 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
     }
 
     user_data = "${data.template_file.bootstrap_init.rendered}"
+    #.......added provisioner block
+    provisioner "local-exec" {
+        command = "if ping -c 1 -W 1 $MASTER_IP; then ssh -o 'StrictHostKeyChecking no' -i $KEY_FILE USER@$MASTER_IP 'if [[ -f /tmp/icp_worker_scaler.sh ]]; then chmod a+x /tmp/icp_worker_scaler.sh; /tmp/icp_worker_scaler.sh a ${var.icp_edition} ${self.network.0.fixed_ip_v4}; fi'; fi"
+        environment {
+            MASTER_IP = "${openstack_compute_instance_v2.icp-master-vm.network.0.fixed_ip_v4}"
+            USER = "${var.icp_install_user}"
+            KEY_FILE = "${var.openstack_ssh_key_file}"
+        }
+    }
 
 }
 
@@ -100,6 +111,45 @@ data "template_file" "bootstrap_worker" {
         docker_download_location = "${var.docker_download_location}"
     }
 }
+
+#...........................................null resourse for master....................................
+data "template_file" "bootstrap_master" {                       #not sure
+    template = "${file("bootstrap_icp_master.sh")}"
+
+    vars {
+        docker_download_location = "${var.docker_download_location}"
+    }
+}
+
+resource "null_resource" "icp-worker-scaler" {
+    triggers {
+        workers = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
+    }
+
+    connection {
+        type            = "ssh"
+        user            = "${var.icp_install_user}"
+        host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}"  #.........why master?
+        private_key     = "${file(var.openstack_ssh_key_file)}"
+        timeout         = "15m"
+    }
+
+    provisioner "file" {
+        source      = "${path.module}/icp_worker_scaler.sh"
+        destination = "/tmp/icp_worker_scaler.sh"
+    }
+
+    provisioner "file" {
+        content     = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_worker_nodes.txt"
+    }
+
+    provisioner "file" {
+        content     = "${file("${var.openstack_ssh_key_file}")}"
+        destination = "/tmp/id_rsa.terraform"
+    }
+}
+#.............................................................................................................
 
 resource "null_resource" "icp-worker-scaler" {
     triggers {
