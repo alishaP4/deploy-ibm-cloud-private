@@ -77,6 +77,82 @@ variable "icp_num_workers" {
     description = "The number of ICP worker nodes to provision"
     default = 1
 }
+#..................................................addition.......................................................
+variable "icp_num_masters" {
+    description = "The number of ICP master nodes to provision"
+    default = 1
+}
+
+variable "icp_num_proxy_nodes" {
+    description = "The number of ICP proxy nodes to provision"
+    default = 1
+}
+
+variable "icp_num_management_nodes" {
+    description = "The number of ICP management nodes to provision"
+    default = 1
+}
+
+variable "registry_mount_src" {
+  description = "Mount point containing the shared registry directory for /var/lib/registry"
+  default     = ""
+}
+
+variable "reg_path" {
+  description = "//reg_path: 9.37.39.xxx:/var/nfs/icp/registry, "
+  default     = ""
+}
+
+variable "registry_mount_type" {
+  description = "Mount Type of registry shared storage filesystem"
+  default     = "nfs"
+}
+
+variable "registry_mount_options" {
+  description = "Additional mount options for registry shared directory"
+  default     = "defaults"
+}
+
+variable "audit_mount_src" {
+  description = "Mount point containing the shared registry directory for /var/lib/icp/audit"
+  default     = ""
+}
+
+variable "auth_audit_path" {
+  description = "//auth_audit_path: 9.37.39.xxx:/var/nfs/icp/authaudit"
+  default     = ""
+}
+
+variable "audit_mount_type" {
+  description = "Mount Type of registry shared storage filesystem"
+  default     = "nfs"
+}
+
+variable "audit_mount_options" {
+  description = "Additional mount options for audit shared directory"
+  default     = "defaults"
+}
+
+variable "kub_audit_mount_src" {
+  description = "Mount point containing the shared registry directory for /var/log/audit"
+  default     = ""
+}
+
+variable "kub_audit_path" {
+  description = "//kub_audit_path: 9.37.39.xxx:/var/nfs/icp/kubaudit"
+  default     = ""
+}
+
+variable "kub_audit_mount_type" {
+  description = "Mount Type of registry shared storage filesystem"
+  default     = "nfs"
+}
+
+variable "kub_audit_mount_options" {
+  description = "Additional mount options for registry shared directory"
+  default     = "defaults"
+}
+#................................................................XXXXXX..................................................
 
 variable "icp_edition" {
     description = "ICP edition - either 'ee' for Enterprise Edition or 'ce' for Community Edition"
