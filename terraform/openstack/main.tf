@@ -65,6 +65,7 @@ resource "openstack_compute_instance_v2" "icp-worker-vm" {
 }
 
 resource "openstack_compute_instance_v2" "icp-master-vm" {
+	entry = 1
     count     = "${var.icp_num_masters}"        #....addition
     #name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
     name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"          #....addition
@@ -75,17 +76,27 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
     network {
         name = "${var.openstack_network_name}"
     }
-
-    user_data = "${data.template_file.bootstrap_init.rendered}"
-    #.......added provisioner block
-    provisioner "local-exec" {
-        command = "if ping -c 1 -W 1 $MASTER_IP; then ssh -o 'StrictHostKeyChecking no' -i $KEY_FILE USER@$MASTER_IP 'if [[ -f /tmp/icp_worker_scaler.sh ]]; then chmod a+x /tmp/icp_worker_scaler.sh; /tmp/icp_worker_scaler.sh a ${var.icp_edition} ${self.network.0.fixed_ip_v4}; fi'; fi"
-        environment {
-            MASTER_IP = "${openstack_compute_instance_v2.icp-master-vm.network.0.fixed_ip_v4}"
-            USER = "${var.icp_install_user}"
-            KEY_FILE = "${var.openstack_ssh_key_file}"
-        }
-    }
+    
+    #if-else construct is not allowed in terraform ... just a thought on how the flow should be
+    #The very first master VM will be the boot node i.e. the ICP installation script will be executed inside it.(bootstrap_icp_master.sh)
+    #The ICP installation script should not run on the subsequent master vm's...bootstrap_icp_subsequent_masters.sh
+    #For the first entry run bootstrap_icp_master.sh else, run bootstrap_icp_subsequent_masters.sh
+    if [ "$entry" == 1 ] then
+		user_data = "${data.template_file.bootstrap_init.rendered}"   #which refers "bootstrap_icp_master.sh"
+		entry = 2
+	else
+		user_data = "${data.template_file.bootstrap_init_subsequent_masters.rendered}"		#which refers "bootstrap_icp_subsequent_master.sh"
+	
+    #NFS server should be mounted on all the master nodes
+	inline = [
+      "sudo mkdir -p /var/lib/registry",
+      "sudo mkdir -p /var/lib/icp/audit",
+	  "sudo mkdir -p /var/log/audit",
+      "echo '${var.registry_mount_src} /var/lib/registry  ${var.registry_mount_type}  ${var.registry_mount_options}   0 0' | sudo tee -a /etc/fstab",
+      "echo '${var.audit_mount_src} /var/lib/icp/audit   ${var.audit_mount_type}  ${var.audit_mount_options}  0 0' | sudo tee -a /etc/fstab",
+      "echo '${var.kub_audit_mount_src} /var/log/audit   ${var.kub_audit_mount_type}  ${var.kub_audit_mount_options}  0 0' | sudo tee -a /etc/fstab",
+      "sudo mount -a"
+    ]
 
 }
 
@@ -101,6 +112,16 @@ data "template_file" "bootstrap_init" {
         install_user_name = "${var.icp_install_user}"
         install_user_password = "${var.icp_install_user_password}"
         docker_download_location = "${var.docker_download_location}"
+        cluster_vip = "${var.cluster_vip}"
+    }
+}
+
+#.....For Subsequent masters .. script without ICP install cmds
+data "template_file" "bootstrap_init_subsequent_masters" {
+    template = "${file("bootstrap_icp_subsequent_masters.sh")}"
+
+    vars {
+        docker_download_location = "${var.docker_download_location}"
     }
 }
 
@@ -113,13 +134,6 @@ data "template_file" "bootstrap_worker" {
 }
 
 #...........................................null resourse for master....................................
-data "template_file" "bootstrap_master" {                       #not sure
-    template = "${file("bootstrap_icp_master.sh")}"
-
-    vars {
-        docker_download_location = "${var.docker_download_location}"
-    }
-}
 
 resource "null_resource" "icp-worker-scaler" {
     triggers {
