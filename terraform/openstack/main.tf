@@ -65,7 +65,7 @@ resource "openstack_compute_instance_v2" "icp-worker-vm" {
 }
 
 resource "openstack_compute_instance_v2" "icp-master-vm" {
-	entry = 1
+    entry = 1
     count     = "${var.icp_num_masters}"        #....addition
     #name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
     name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"          #....addition
@@ -82,16 +82,16 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
     #The ICP installation script should not run on the subsequent master vm's...bootstrap_icp_subsequent_masters.sh
     #For the first entry run bootstrap_icp_master.sh else, run bootstrap_icp_subsequent_masters.sh
     if [ "$entry" == 1 ] then
-		user_data = "${data.template_file.bootstrap_init.rendered}"   #which refers "bootstrap_icp_master.sh"
-		entry = 2
-	else
-		user_data = "${data.template_file.bootstrap_init_subsequent_masters.rendered}"		#which refers "bootstrap_icp_subsequent_master.sh"
+	user_data = "${data.template_file.bootstrap_init.rendered}"   #which refers "bootstrap_icp_master.sh"
+	entry = 2
+    else
+	user_data = "${data.template_file.bootstrap_init_subsequent_masters.rendered}"		#which refers "bootstrap_icp_subsequent_master.sh"
 	
     #NFS server should be mounted on all the master nodes
 	inline = [
       "sudo mkdir -p /var/lib/registry",
       "sudo mkdir -p /var/lib/icp/audit",
-	  "sudo mkdir -p /var/log/audit",
+      "sudo mkdir -p /var/log/audit",
       "echo '${var.registry_mount_src} /var/lib/registry  ${var.registry_mount_type}  ${var.registry_mount_options}   0 0' | sudo tee -a /etc/fstab",
       "echo '${var.audit_mount_src} /var/lib/icp/audit   ${var.audit_mount_type}  ${var.audit_mount_options}  0 0' | sudo tee -a /etc/fstab",
       "echo '${var.kub_audit_mount_src} /var/log/audit   ${var.kub_audit_mount_type}  ${var.kub_audit_mount_options}  0 0' | sudo tee -a /etc/fstab",
