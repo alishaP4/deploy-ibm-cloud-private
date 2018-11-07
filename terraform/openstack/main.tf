@@ -88,7 +88,7 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
 	user_data = "${data.template_file.bootstrap_init_subsequent_masters.rendered}"		#which refers "bootstrap_icp_subsequent_master.sh"
 	
     #NFS server should be mounted on all the master nodes
-	inline = [
+    inline = [
       "sudo mkdir -p /var/lib/registry",
       "sudo mkdir -p /var/lib/icp/audit",
       "sudo mkdir -p /var/log/audit",
