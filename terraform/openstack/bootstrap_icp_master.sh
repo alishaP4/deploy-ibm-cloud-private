@@ -214,7 +214,10 @@ if [ -n "${icp_disabled_services}" ]; then
     /bin/sed -i 's/.*disabled_management_services:.*/disabled_management_services: [ ${icp_disabled_services} ]/g' cluster/config.yaml
 else
     /bin/sed -i 's/.*disabled_management_services:.*/disabled_management_services: [ "" ]/g' cluster/config.yaml
-
+fi
+if [ "${if_HA}" == "true" ]; then
+    /bin/sed -i 's/.*cluster_vip:.*/cluster_vip: "'${cluster_vip}'"/g' cluster/config.yaml
+    /bin/sed -i 's/.*proxy_vip:.*/proxy_vip: "'${proxy_vip}'"/g' cluster/config.yaml
 fi
 
 # Setup the private key for the ICP cluster (injected at deploy time)
