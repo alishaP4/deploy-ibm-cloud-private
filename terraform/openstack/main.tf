@@ -67,6 +67,7 @@ resource "openstack_compute_instance_v2" "icp-worker-vm" {
 resource "openstack_compute_instance_v2" "icp-master-vm" {
     entry = 1
     count     = "${var.icp_num_masters}"        #....addition
+    count     = "${var.instances["backend"]}"
     #name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
     name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"          #....addition
     image_id  = "${var.openstack_image_id}"
@@ -77,15 +78,7 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
         name = "${var.openstack_network_name}"
     }
     
-    #if-else construct is not allowed in terraform ... just a thought on how the flow should be
-    #The very first master VM will be the boot node i.e. the ICP installation script will be executed inside it.(bootstrap_icp_master.sh)
-    #The ICP installation script should not run on the subsequent master vm's...bootstrap_icp_subsequent_masters.sh
-    #For the first entry run bootstrap_icp_master.sh else, run bootstrap_icp_subsequent_masters.sh
-    if [ "$entry" == 1 ] then
-	user_data = "${data.template_file.bootstrap_init.rendered}"   #which refers "bootstrap_icp_master.sh"
-	entry = 2
-    else
-	user_data = "${data.template_file.bootstrap_init_subsequent_masters.rendered}"		#which refers "bootstrap_icp_subsequent_master.sh"
+    user_data = "${count.index > 0 ? "${data.template_file.bootstrap_init_subsequent_masters.rendered}" : "${data.template_file.bootstrap_init.rendered}"}" 
 	
     #NFS server should be mounted on all the master nodes
     inline = [
