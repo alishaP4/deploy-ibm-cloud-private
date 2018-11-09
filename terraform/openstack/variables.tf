@@ -78,10 +78,23 @@ variable "icp_num_workers" {
     default = 1
 }
 #..................................................addition.......................................................
+variable "cluster_vip" {
+  description = "Virtual IP for Master Console"
+  default     = "127.0.1.1"
+}
+
 variable "icp_num_masters" {
     description = "The number of ICP master nodes to provision"
     default = 1
 }
+
+variable instances {
+   type = "map"   
+   
+   default   {     
+   backend = "2"   
+   } 
+ }
 
 variable "icp_num_proxy_nodes" {
     description = "The number of ICP proxy nodes to provision"
