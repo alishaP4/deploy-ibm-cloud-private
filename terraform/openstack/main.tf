@@ -66,8 +66,8 @@ resource "openstack_compute_instance_v2" "icp-worker-vm" {
 
 resource "openstack_compute_instance_v2" "icp-master-vm" {
     entry = 1
-    count     = "${var.icp_num_masters}"        #....addition
-    count     = "${var.instances["backend"]}"
+    #count     = "${var.icp_num_masters}"        #....addition
+    count     = "${var.icp_num_masters["backend"]}"
     #name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
     name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"          #....addition
     image_id  = "${var.openstack_image_id}"
