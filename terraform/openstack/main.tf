@@ -131,27 +131,27 @@ data "template_file" "bootstrap_worker" {
 
 #...........................................null resourse for master....................................
 
-resource "null_resource" "icp-worker-scaler" {
+resource "null_resource" "icp-master-scaler" {
     triggers {
-        workers = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
+        workers = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
     }
 
     connection {
         type            = "ssh"
         user            = "${var.icp_install_user}"
-        host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}"  #.........why master?
+        host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}"
         private_key     = "${file(var.openstack_ssh_key_file)}"
         timeout         = "15m"
     }
 
     provisioner "file" {
-        source      = "${path.module}/icp_worker_scaler.sh"
-        destination = "/tmp/icp_worker_scaler.sh"
+        source      = "${path.module}/icp_master_scaler.sh"
+        destination = "/tmp/icp_master_scaler.sh"
     }
 
     provisioner "file" {
-        content     = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
-        destination = "/tmp/icp_worker_nodes.txt"
+        content     = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_master_nodes.txt"
     }
 
     provisioner "file" {
@@ -169,7 +169,7 @@ resource "null_resource" "icp-worker-scaler" {
     connection {
         type            = "ssh"
         user            = "${var.icp_install_user}"
-        host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}"
+        host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}" #......... master?
         private_key     = "${file(var.openstack_ssh_key_file)}"
         timeout         = "15m"
     }
