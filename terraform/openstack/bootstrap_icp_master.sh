@@ -170,20 +170,19 @@ if [ "${icp_edition}" == "ee" ]; then
 fi
 
 if [ "${if_HA}" == "false" ]; then
-	# Configure the master and proxy as the same node
-	/bin/echo "[master]"  > cluster/hosts
-	/bin/echo "$IP"    >> cluster/hosts
-	/bin/echo "[va]"  >> cluster/hosts
-	/bin/echo "$IP"    >> cluster/hosts
-	/bin/echo "[proxy]"  >> cluster/hosts
-	/bin/echo "$IP"    >> cluster/hosts
+   # Configure the master and proxy as the same node
+   /bin/echo "[master]"  > cluster/hosts
+   /bin/echo "$IP"    >> cluster/hosts
+   /bin/echo "[va]"  >> cluster/hosts
+   /bin/echo "$IP"    >> cluster/hosts
+   /bin/echo "[proxy]"  >> cluster/hosts
+   /bin/echo "$IP"    >> cluster/hosts
 else
-	# Configure the master node(s)   ......... similarly for proxy & management nodes
-	for master_ip in $( cat /tmp/icp_master_nodes.txt | sed 's/|/\n/g' ); do
-		x=0
-		/bin/echo "[master]"     >> cluster/hosts
-		/bin/echo "$master_ip" >> cluster/hosts
-	done
+   # Configure the master node(s)   ......... similarly for proxy & management nodes
+   for master_ip in $( cat /tmp/icp_master_nodes.txt | sed 's/|/\n/g' ); do
+       /bin/echo "[master]"     >> cluster/hosts
+       /bin/echo "$master_ip" >> cluster/hosts
+   done
 fi
 
 x=0
