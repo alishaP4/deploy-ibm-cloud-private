@@ -69,7 +69,7 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
     #count     = "${var.icp_num_masters["backend"]}"
     count = "${var.instances["backend"]}"
     #name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
-    name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"          #....addition
+    name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"
     image_id  = "${var.openstack_image_id}"
     flavor_id = "${var.openstack_flavor_id_master_node}"
     key_pair  = "${openstack_compute_keypair_v2.icp-key-pair.name}"
@@ -78,6 +78,7 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
         name = "${var.openstack_network_name}"
     }
     
+    user_data = "${data.template_file.bootstrap_init.rendered}"
     ##user_data = "${count.index > 0 ? "${data.template_file.bootstrap_init_subsequent_masters.rendered}" : "${data.template_file.bootstrap_init.rendered}"}" 
 	
     #NFS server should be mounted on all the master nodes
