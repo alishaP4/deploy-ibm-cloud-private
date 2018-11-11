@@ -93,7 +93,7 @@ variable "proxy_vip" {
 #    default = 1
 #}
 
-variable icp_num_masters {
+variable instances {
    type = "map"   
    
    default   {     
