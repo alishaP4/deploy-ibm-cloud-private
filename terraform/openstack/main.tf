@@ -111,6 +111,7 @@ data "template_file" "bootstrap_init" {
         install_user_password = "${var.icp_install_user_password}"
         docker_download_location = "${var.docker_download_location}"
         cluster_vip = "${var.cluster_vip}"
+        if_HA = "${var.if_HA}"
     }
 }
 
