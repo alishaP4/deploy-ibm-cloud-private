@@ -78,6 +78,12 @@ variable "icp_num_workers" {
     default = 1
 }
 #..................................................addition.......................................................
+
+variable "if_HA" {
+    description = "If HA configurations are required then mark it as true"
+    default = false
+}
+
 variable "cluster_vip" {
   description = "Virtual IP for Master Console"
   default     = "127.0.1.1"
