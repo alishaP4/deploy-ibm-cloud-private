@@ -135,34 +135,34 @@ data "template_file" "bootstrap_worker" {
 
 #...........................................null resourse for master....................................
 
-#resource "null_resource" "icp-master-scaler" {
-    #triggers {
-        #workers = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
-    #}
+resource "null_resource" "icp-master-scaler" {
+    triggers {
+        workers = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
+    }
 
-    #connection {
-        #type            = "ssh"
-        #user            = "${var.icp_install_user}"
-        #host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}"
-        #private_key     = "${file(var.openstack_ssh_key_file)}"
-        #timeout         = "15m"
-    #}
+    connection {
+        type            = "ssh"
+        user            = "${var.icp_install_user}"
+        host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}"
+        private_key     = "${file(var.openstack_ssh_key_file)}"
+        timeout         = "15m"
+    }
 
-    #provisioner "file" {
-        #source      = "${path.module}/icp_master_scaler.sh"
-        #destination = "/tmp/icp_master_scaler.sh"
-    #}
+    provisioner "file" {
+        source      = "${path.module}/icp_master_scaler.sh"
+        destination = "/tmp/icp_master_scaler.sh"
+    }
 
-    #provisioner "file" {
-        #content     = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
-        #destination = "/tmp/icp_master_nodes.txt"
-    #}
+    provisioner "file" {
+        content     = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_master_nodes.txt"
+    }
 
-    #provisioner "file" {
-        #content     = "${file("${var.openstack_ssh_key_file}")}"
-        #destination = "/tmp/id_rsa.terraform"
-    #}
-#}
+    provisioner "file" {
+        content     = "${file("${var.openstack_ssh_key_file}")}"
+        destination = "/tmp/id_rsa.terraform"
+    }
+}
 
 #.............................................................................................................
 
