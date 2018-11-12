@@ -82,10 +82,10 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
     user_data = "${count.index > 0 ? "${data.template_file.bootstrap_init_subsequent_masters.rendered}" : "${data.template_file.bootstrap_init.rendered}"}" 
 	
     #NFS server should be mounted on all the master nodes
-    inline = [
-      "sudo mkdir -p /var/lib/registry",
-      "sudo mkdir -p /var/lib/icp/audit",
-      "sudo mkdir -p /var/log/audit",
+    #inline = [
+      #"sudo mkdir -p /var/lib/registry",
+      #"sudo mkdir -p /var/lib/icp/audit",
+      #"sudo mkdir -p /var/log/audit",
       #"mount $registry_mount_options $reg_path $registry_mount_src",
       #"mount $audit_mount_options $auth_audit_path $audit_mount_src",
       #"mount $kub_audit_mount_options $kub_audit_path $kub_audit_mount_src"
@@ -94,7 +94,7 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
       #"echo '${var.audit_mount_src} /var/lib/icp/audit   ${var.audit_mount_type}  ${var.audit_mount_options}  0 0' | sudo tee -a /etc/fstab",
       #"echo '${var.kub_audit_mount_src} /var/log/audit   ${var.kub_audit_mount_type}  ${var.kub_audit_mount_options}  0 0' | sudo tee -a /etc/fstab",
       #"sudo mount -a"
-    ]
+    #]
 
 }
 
