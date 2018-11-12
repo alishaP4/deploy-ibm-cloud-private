@@ -52,24 +52,6 @@ ICP_ROOT_DIR="/opt/ibm-cloud-private-${icp_edition}"
 /sbin/sysctl -w vm.max_map_count=262144
 /bin/echo "vm.max_map_count=262144" | /usr/bin/tee -a /etc/sysctl.conf
 
-#..................mychanges.........................
-#if [[ "${var.icp_num_masters}" -ge 3 ]]; then
-#    if [[ "${registry_mount_type}" == "nfs" ]]; then
-#        sudo mkdir -p /var/lib/registry
-#        sudo mkdir -p /var/lib/icp/audit
-#        sudo mkdir -p /var/log/audit
-#        sudo apt-get install -y nfs-common
-#        #/usr/bin/apt-get install -y nfs-common
-#        mount $registry_mount_options $reg_path $registry_mount_src
-#        mount $audit_mount_options $auth_audit_path $audit_mount_src
-#        mount $kub_audit_mount_options $kub_audit_path $kub_audit_mount_src
-#        echo '/var/nfs/icp/registry /var/lib/registry/  nfs  0 0' | sudo tee -a /etc/fstab
-	    #echo '/var/nfs/icp/kubaudit /var/lib/icp/audit/  nfs  0 0' | sudo tee -a /etc/fstab
-	    #echo '/var/nfs/icp/authaudit /var/log/audit  nfs  0 0' | sudo tee -a /etc/fstab
-    #fi
-#fi
-#.......................XXXX............................
-
 # Now for distro dependent stuff
 if [ -f /etc/redhat-release ]; then
 #RHEL specific steps
