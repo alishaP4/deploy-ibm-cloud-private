@@ -102,4 +102,7 @@ fi
 IP=`/sbin/ip -4 -o addr show dev eth0 | awk '{split($4,a,"/");print a[1]}'`
 /bin/echo "$IP $(hostname)" >> /etc/hosts
 
+sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
+sed -i '/ff02::1/s/^/#/g' /etc/hosts        #.....................................test it out
+
 exit 0
