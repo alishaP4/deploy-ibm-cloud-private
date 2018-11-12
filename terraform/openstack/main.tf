@@ -68,8 +68,8 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
     #count     = "${var.icp_num_masters}"        #....addition
     #count     = "${var.icp_num_masters["backend"]}"
     count = "${var.instances["backend"]}"
-    name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
-    #name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"
+    #name      = "${var.instance_prefix}-master-${random_id.rand.hex}"
+    name      = "${format("${var.instance_prefix}-master-${random_id.rand.hex}-%02d", count.index+1)}"
     image_id  = "${var.openstack_image_id}"
     flavor_id = "${var.openstack_flavor_id_master_node}"
     key_pair  = "${openstack_compute_keypair_v2.icp-key-pair.name}"
@@ -78,8 +78,8 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
         name = "${var.openstack_network_name}"
     }
     
-    user_data = "${data.template_file.bootstrap_init.rendered}"
-    ##user_data = "${count.index > 0 ? "${data.template_file.bootstrap_init_subsequent_masters.rendered}" : "${data.template_file.bootstrap_init.rendered}"}" 
+    #user_data = "${data.template_file.bootstrap_init.rendered}"
+    user_data = "${count.index > 0 ? "${data.template_file.bootstrap_init_subsequent_masters.rendered}" : "${data.template_file.bootstrap_init.rendered}"}" 
 	
     #NFS server should be mounted on all the master nodes
     #inline = [
@@ -133,34 +133,7 @@ data "template_file" "bootstrap_worker" {
 
 #...........................................null resourse for master....................................
 
-resource "null_resource" "icp-master-scaler" {
-    triggers {
-        workers = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
-    }
 
-    connection {
-        type            = "ssh"
-        user            = "${var.icp_install_user}"
-        host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}"
-        private_key     = "${file(var.openstack_ssh_key_file)}"
-        timeout         = "15m"
-    }
-
-    provisioner "file" {
-        source      = "${path.module}/icp_master_scaler.sh"
-        destination = "/tmp/icp_master_scaler.sh"
-    }
-
-    provisioner "file" {
-        content     = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
-        destination = "/tmp/icp_master_nodes.txt"
-    }
-
-    provisioner "file" {
-        content     = "${file("${var.openstack_ssh_key_file}")}"
-        destination = "/tmp/id_rsa.terraform"
-    }
-}
 #.............................................................................................................
 
 resource "null_resource" "icp-worker-scaler" {
