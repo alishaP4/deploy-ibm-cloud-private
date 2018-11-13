@@ -99,10 +99,12 @@ else
 fi
 
 # Ensure the hostname is resolvable
-IP=`/sbin/ip -4 -o addr show dev eth0 | awk '{split($4,a,"/");print a[1]}'`
+#IP=`/sbin/ip -4 -o addr show dev eth0 | awk '{split($4,a,"/");print a[1]}'` # Device "eth0" does not exist in Hursley VM's
+#With appropriate interface observed that, the above cmd gives private ip on hursley vm's and public ip on fyre vm's.
+IP=`ifconfig `ip route | grep default | head -1 | sed 's/\(.*dev \)\([a-z0-9]*\)\(.*\)/\2/g'` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1`
 /bin/echo "$IP $(hostname)" >> /etc/hosts
 
 sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
-sed -i '/ff02::1/s/^/#/g' /etc/hosts        #.....................................test it out
+sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................test it out
 
 exit 0
