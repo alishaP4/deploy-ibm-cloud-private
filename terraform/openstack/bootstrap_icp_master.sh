@@ -159,9 +159,9 @@ if [ "${if_HA}" == "true" ]; then
     /bin/mkdir -p /var/lib/registry
     /bin/mkdir -p /var/lib/icp/audit
     /bin/mkdir -p /var/log/audit
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 $reg_path $registry_mount_src
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 $auth_audit_path $audit_mount_src
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 $kub_audit_path $kub_audit_mount_src
+    /usr/bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${reg_path}" "${registry_mount_src}"
+    /usr/bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${auth_audit_path}" "${audit_mount_src}"
+    /usr/bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${kub_audit_path}" "${kub_audit_mount_src}"
 fi
 
 if [ "${if_HA}" == "false" ]; then
