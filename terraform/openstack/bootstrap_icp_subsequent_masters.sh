@@ -102,4 +102,14 @@ IP=`ifconfig `ip route | grep default | head -1 | sed 's/\(.*dev \)\([a-z0-9]*\)
 sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
 sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................test it out
 
+if [ "${if_HA}" == "true" ]; then
+    /usr/bin/apt-get --assume-yes install nfs-common
+    /bin/mkdir -p /var/lib/registry
+    /bin/mkdir -p /var/lib/icp/audit
+    /bin/mkdir -p /var/log/audit
+    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 $reg_path $registry_mount_src
+    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 $auth_audit_path $audit_mount_src
+    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 $kub_audit_path $kub_audit_mount_src
+fi
+
 exit 0
