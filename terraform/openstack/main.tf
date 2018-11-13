@@ -113,6 +113,12 @@ data "template_file" "bootstrap_init" {
         cluster_vip = "${var.cluster_vip}"
         proxy_vip = "${var.proxy_vip}"
         if_HA = "${var.if_HA}"
+	reg_path = "${var.reg_path}"				#10.56.0.55:/var/nfs/icp/registry
+	registry_mount_src = "${var.registry_mount_src}"	#/var/lib/registry
+	auth_audit_path = "${var.auth_audit_path}"		#10.56.0.55:/var/nfs/icp/authaudit
+	audit_mount_src = "${var.audit_mount_src}"		#/var/lib/icp/audit
+	kub_audit_path = "${var.kub_audit_path}"		#10.56.0.55:/var/nfs/icp/kubaudit
+	kub_audit_mount_src = "${var.kub_audit_mount_src}"	#/var/log/audit
     }
 }
 
@@ -121,6 +127,13 @@ data "template_file" "bootstrap_init_subsequent_masters" {
     template = "${file("bootstrap_icp_subsequent_masters.sh")}"
 
     vars {
+        if_HA = "${var.if_HA}"
+	reg_path = "${var.reg_path}"
+	registry_mount_src = "${var.registry_mount_src}"
+	auth_audit_path = "${var.auth_audit_path}"
+	audit_mount_src = "${var.audit_mount_src}"
+	kub_audit_path = "${var.kub_audit_path}"
+	kub_audit_mount_src = "${var.kub_audit_mount_src}"
         docker_download_location = "${var.docker_download_location}"
     }
 }
