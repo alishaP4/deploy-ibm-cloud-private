@@ -172,6 +172,7 @@ resource "null_resource" "icp-master-scaler" {
         destination = "/tmp/icp_master_nodes.txt"
     }
 
+    #commenting the below part as I want every vm to create it's own key. Not sure if this would conflict.
     provisioner "file" {
         content     = "${file("${var.openstack_ssh_key_file}")}"
         destination = "/tmp/id_rsa.terraform"
