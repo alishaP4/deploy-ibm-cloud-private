@@ -84,6 +84,11 @@ variable "openstack_availability_zone" {
     default = "PowerKVM"
 }
 
+variable "openstack_security_groups" {
+    description = "The security groups"
+    default = "["default"]"
+}
+
 variable "if_HA" {
     description = "If HA configurations are required then mark it as true"
     default = false
