@@ -166,10 +166,10 @@ resource "null_resource" "icp-master-scaler" {
         timeout         = "15m"
     }
 
-    provisioner "file" {
-        source      = "${path.module}/icp_master_scaler.sh"
-        destination = "/tmp/icp_master_scaler.sh"
-    }
+    #provisioner "file" {					#commenting - as we wont be adding or removing master nodes
+        #source      = "${path.module}/icp_master_scaler.sh"
+        #destination = "/tmp/icp_master_scaler.sh"
+    #}
 
     provisioner "file" {
         content     = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
