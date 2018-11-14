@@ -57,7 +57,7 @@ resource "openstack_compute_instance_v2" "icp-worker-vm" {
         when    = "destroy"
         command = "ssh -o 'StrictHostKeyChecking no' -i $KEY_FILE $USER@$MASTER_IP 'if [[ -f /tmp/icp_worker_scaler.sh ]]; then chmod a+x /tmp/icp_worker_scaler.sh; /tmp/icp_worker_scaler.sh r ${var.icp_edition} ${self.network.0.fixed_ip_v4}; fi'"
         environment {
-            MASTER_IP = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}"
+            MASTER_IP = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}" #changed * to 0
             USER = "${var.icp_install_user}"
             KEY_FILE = "${var.openstack_ssh_key_file}"
         }
