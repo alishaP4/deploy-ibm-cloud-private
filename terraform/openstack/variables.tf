@@ -53,6 +53,16 @@ variable "openstack_flavor_id_worker_node" {
     default = "my_flavor_id"
 }
 
+variable "openstack_flavor_id_proxy_node" {
+    description = "The ID of the flavor to be used for ICP proxy node deploy operations"
+    default = "my_flavor_id"
+}
+
+variable "openstack_flavor_id_management_node" {
+    description = "The ID of the flavor to be used for ICP management node deploy operations"
+    default = "my_flavor_id"
+}
+
 variable "openstack_network_name" {
     description = "The name of the network to be used for deploy operations"
     default = "my_network_name"
