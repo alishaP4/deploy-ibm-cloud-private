@@ -79,6 +79,11 @@ variable "icp_num_workers" {
 }
 #..................................................addition.......................................................
 
+variable "openstack_availability_zone" {
+    description = "The availability zone"
+    default = "PowerKVM"
+}
+
 variable "if_HA" {
     description = "If HA configurations are required then mark it as true"
     default = false
