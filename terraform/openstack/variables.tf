@@ -117,12 +117,12 @@ variable instances {
    } 
  }
 
-variable "icp_num_proxy_nodes" {
+variable "icp_num_proxy" {
     description = "The number of ICP proxy nodes to provision"
     default = 1
 }
 
-variable "icp_num_management_nodes" {
+variable "icp_num_management" {
     description = "The number of ICP management nodes to provision"
     default = 1
 }
