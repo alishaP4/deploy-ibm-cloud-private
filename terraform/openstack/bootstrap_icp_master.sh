@@ -175,9 +175,15 @@ if [ "${if_HA}" == "false" ]; then
    /bin/echo "$IP"    >> cluster/hosts
 else
    # Configure the master node(s)   ......... similarly for proxy & management nodes
+   master_count=0
    for master_ip in $( cat /tmp/icp_master_nodes.txt | sed 's/|/\n/g' ); do
-       /bin/echo "[master]"     >> cluster/hosts
-       /bin/echo "$master_ip" >> cluster/hosts
+       if [ "$master_count" -n "${install_user_password}" ]; then
+           /bin/echo "[master]"     >> cluster/hosts
+           /bin/echo "$master_ip" >> cluster/hosts
+       else
+            /bin/echo "$master_ip" >> cluster/hosts
+       fi
+       master_count=1
    done
 fi
 
