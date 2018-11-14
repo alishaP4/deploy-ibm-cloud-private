@@ -148,6 +148,10 @@ fi
 cd "$ICP_ROOT_DIR"
 /usr/bin/docker run -e LICENSE=accept -v \
     "$(pwd)":/data $ICP_DOCKER_IMAGE cp -r cluster /data
+ 
+# Add the ssh-key in the authorized_keys
+#cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+cat /tmp/id_rsa.terraform >> /root/.ssh/authorized_keys
 
 if [ "${icp_edition}" == "ee" ]; then
     /bin/mkdir -p cluster/images
@@ -183,7 +187,7 @@ else
        else
             /bin/echo "$master_ip" >> cluster/hosts
        fi
-       master_count=1
+       master_count=master_count+1
    done
 fi
 
