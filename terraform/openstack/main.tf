@@ -153,7 +153,7 @@ resource "openstack_compute_instance_v2" "icp-proxy-vm" {
 }
 
 data "template_file" "bootstrap_proxy" {
-    template = "${file("bootstrap_icp_proxy.sh")}"
+    template = "${file("bootstrap_icp_node.sh")}"		#use a common file for proxy, management, even worker if possible
 
     vars {
         docker_download_location = "${var.docker_download_location}"
@@ -177,13 +177,13 @@ resource "openstack_compute_instance_v2" "icp-management-vm" {
     //local exec will cm for management if adding/deleting it is required.
 }
 
-data "template_file" "bootstrap_management" {
-    template = "${file("bootstrap_icp_management.sh")}"
+#data "template_file" "bootstrap_management" {
+    #template = "${file("bootstrap_icp_management.sh")}"
 
-    vars {
-        docker_download_location = "${var.docker_download_location}"
-    }
-}
+    #vars {
+        #docker_download_location = "${var.docker_download_location}"
+    #}
+#}
 #...........................................null resourse for master....................................
 
 resource "null_resource" "icp-master-scaler" {
@@ -273,6 +273,38 @@ resource "null_resource" "icp-proxy-scaler" {
     provisioner "file" {
         content     = "${join("|", openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4)}"
         destination = "/tmp/icp_proxy_nodes.txt"
+    }
+
+    provisioner "file" {
+        content     = "${file("${var.openstack_ssh_key_file}")}"
+        destination = "/tmp/id_rsa.terraform"
+    }
+}
+
+#...............................................null resource for management.................................
+
+resource "null_resource" "icp-management-scaler" {
+    triggers {
+        workers = "${join("|", openstack_compute_instance_v2.icp-management-vm.*.network.0.fixed_ip_v4)}"
+    }
+
+    connection {
+        type            = "ssh"
+        user            = "${var.icp_install_user}"
+        #host            = "${openstack_compute_instance_v2.icp-management-vm.*.network.0.fixed_ip_v4}"
+        host            = "${openstack_compute_instance_v2.icp-management-vm.0.network.0.fixed_ip_v4}"
+        private_key     = "${file(var.openstack_ssh_key_file)}"
+        timeout         = "15m"
+    }
+
+    #provisioner "file" {  				#check if u can add/delete proxy nodes
+        #source      = "${path.module}/icp_management_scaler.sh"
+        #destination = "/tmp/icp_management_scaler.sh"
+    #}
+
+    provisioner "file" {
+        content     = "${join("|", openstack_compute_instance_v2.icp-management-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_management_nodes.txt"
     }
 
     provisioner "file" {
