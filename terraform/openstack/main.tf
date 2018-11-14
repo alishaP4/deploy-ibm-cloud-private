@@ -37,7 +37,7 @@ resource "openstack_compute_instance_v2" "icp-worker-vm" {
     image_id  = "${var.openstack_image_id}"
     flavor_id = "${var.openstack_flavor_id_worker_node}"
     key_pair  = "${openstack_compute_keypair_v2.icp-key-pair.name}"
-    #security_groups = "${var.openstack_security_groups}"
+    security_groups = ["${var.openstack_security_groups}"]
     availability_zone = "${var.openstack_availability_zone}"
 
     network {
@@ -75,7 +75,7 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
     image_id  = "${var.openstack_image_id}"
     flavor_id = "${var.openstack_flavor_id_master_node}"
     key_pair  = "${openstack_compute_keypair_v2.icp-key-pair.name}"
-    #security_groups = "${var.openstack_security_groups}"
+    security_groups = ["${var.openstack_security_groups}"]
     availability_zone = "${var.openstack_availability_zone}"
 
     network {
