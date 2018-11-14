@@ -148,11 +148,11 @@ resource "openstack_compute_instance_v2" "icp-proxy-vm" {
         name = "${var.openstack_network_name}"
     }
 
-    user_data = "${data.template_file.bootstrap_proxy.rendered}"
+    user_data = "${data.template_file.bootstrap_node.rendered}"			#bootstrap_node
     //local exec will cm for proxy if adding/deleting it is required.
 }
 
-data "template_file" "bootstrap_proxy" {
+data "template_file" "bootstrap_node" {
     template = "${file("bootstrap_icp_node.sh")}"		#use a common file for proxy, management, even worker if possible
 
     vars {
@@ -173,7 +173,7 @@ resource "openstack_compute_instance_v2" "icp-management-vm" {
         name = "${var.openstack_network_name}"
     }
 
-    user_data = "${data.template_file.bootstrap_management.rendered}"
+    user_data = "${data.template_file.bootstrap_node.rendered}"		#bootstrap_node
     //local exec will cm for management if adding/deleting it is required.
 }
 
