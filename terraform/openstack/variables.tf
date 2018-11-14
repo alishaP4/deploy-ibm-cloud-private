@@ -86,7 +86,7 @@ variable "openstack_availability_zone" {
 
 variable "openstack_security_groups" {
     description = "The security groups"
-    default = "["default"]"
+    default = ""
 }
 
 variable "if_HA" {
