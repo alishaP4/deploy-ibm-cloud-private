@@ -108,4 +108,6 @@ IP=`/sbin/ip -4 -o addr show dev enp0s1 | awk '{split($4,a,"/");print a[1]}'`
 sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
 sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................test it out
 
+cat /tmp/id_rsa.terraform >> /root/.ssh/authorized_keys
+
 exit 0
