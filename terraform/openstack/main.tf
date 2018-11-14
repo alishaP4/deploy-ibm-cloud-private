@@ -20,7 +20,7 @@ provider "openstack" {
     domain_name = "${var.openstack_domain_name}"
     auth_url    = "${var.openstack_auth_url}"
     security_groups = "${var.openstack_security_groups}"
-    availability_zone = "${var.openstack_availability_zone}"
+    #availability_zone = "${var.openstack_availability_zone}"
     insecure    = true
 }
 
