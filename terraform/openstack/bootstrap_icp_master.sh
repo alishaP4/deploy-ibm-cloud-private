@@ -151,7 +151,7 @@ cd "$ICP_ROOT_DIR"
  
 # Add the ssh-key in the authorized_keys
 #cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
-cat /tmp/id_rsa.terraform >> /root/.ssh/authorized_keys
+#cat /tmp/id_rsa.terraform >> /root/.ssh/authorized_keys
 
 if [ "${icp_edition}" == "ee" ]; then
     /bin/mkdir -p cluster/images
