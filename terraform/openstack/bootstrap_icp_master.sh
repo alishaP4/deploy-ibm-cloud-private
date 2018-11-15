@@ -126,6 +126,16 @@ else
     fi
 fi
 
+if [ "${if_HA}" == "true" ]; then
+    /usr/bin/apt-get --assume-yes install nfs-common
+    /bin/mkdir -p /var/lib/registry
+    /bin/mkdir -p /var/lib/icp/audit
+    /bin/mkdir -p /var/log/audit
+    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${reg_path}" "${registry_mount_src}"
+    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${auth_audit_path}" "${audit_mount_src}"
+    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${kub_audit_path}" "${kub_audit_mount_src}"
+fi
+
 # Ensure the hostnames are resolvable
 #IP=`/sbin/ip -4 -o addr show dev eth0 | awk '{split($4,a,"/");print a[1]}'`
 #IP=`ifconfig `ip route | grep default | head -1 | sed 's/\(.*dev \)\([a-z0-9]*\)\(.*\)/\2/g'` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1`
@@ -161,15 +171,10 @@ if [ "${icp_edition}" == "ee" ]; then
     /bin/rm -rf "$TMP_DIR"
 fi
 
-if [ "${if_HA}" == "true" ]; then
-    /usr/bin/apt-get --assume-yes install nfs-common
-    /bin/mkdir -p /var/lib/registry
-    /bin/mkdir -p /var/lib/icp/audit
-    /bin/mkdir -p /var/log/audit
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${reg_path}" "${registry_mount_src}"
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${auth_audit_path}" "${audit_mount_src}"
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${kub_audit_path}" "${kub_audit_mount_src}"
-fi
+cd ./cluster || exit
+# Remove the content of the hosts file
+> ./hosts
+cd "$ICP_ROOT_DIR"
 
 if [ "${if_HA}" == "false" ]; then
    # Configure the master and proxy as the same node
