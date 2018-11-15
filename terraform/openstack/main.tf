@@ -131,6 +131,7 @@ data "template_file" "bootstrap_worker" {
     template = "${file("bootstrap_icp_worker.sh")}"
 
     vars {
+        if_HA = "${var.if_HA}"
         docker_download_location = "${var.docker_download_location}"
     }
 }
@@ -155,6 +156,7 @@ data "template_file" "bootstrap_node" {
     template = "${file("bootstrap_icp_node.sh")}"		#use a common file for proxy, management, even worker if possible
 
     vars {
+        if_HA = "${var.if_HA}"
         docker_download_location = "${var.docker_download_location}"
     }
 }
