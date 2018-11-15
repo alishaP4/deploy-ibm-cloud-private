@@ -134,6 +134,59 @@ data "template_file" "bootstrap_worker" {
         docker_download_location = "${var.docker_download_location}"
     }
 }
+#---------------PROXY-------------------------------
+resource "openstack_compute_instance_v2" "icp-proxy-vm" {
+    count     = "${var.icp_num_proxy}"
+    name      = "${format("${var.instance_prefix}-proxy-${random_id.rand.hex}-%02d", count.index+1)}"
+    image_id  = "${var.openstack_image_id}"
+    flavor_id = "${var.openstack_flavor_id_proxy_node}"
+    key_pair  = "${openstack_compute_keypair_v2.icp-key-pair.name}"
+    security_groups = ["${var.openstack_security_groups}"]
+    availability_zone = "${var.openstack_availability_zone}"
+
+    network {
+        name = "${var.openstack_network_name}"
+    }
+
+    user_data = "${data.template_file.bootstrap_node.rendered}"			#bootstrap_node
+    //local exec will cm for proxy if adding/deleting it is required.
+}
+data "template_file" "bootstrap_node" {
+    template = "${file("bootstrap_icp_node.sh")}"		#use a common file for proxy, management, even worker if possible
+
+    vars {
+        docker_download_location = "${var.docker_download_location}"
+    }
+}
+resource "null_resource" "icp-proxy-scaler" {
+    triggers {
+        workers = "${join("|", openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4)}"
+    }
+
+    connection {
+        type            = "ssh"
+        user            = "${var.icp_install_user}"
+        #host            = "${openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4}"
+        host            = "${openstack_compute_instance_v2.icp-proxy-vm.0.network.0.fixed_ip_v4}"
+        private_key     = "${file(var.openstack_ssh_key_file)}"
+        timeout         = "15m"
+    }
+
+    #provisioner "file" {  				#check if u can add/delete proxy nodes
+        #source      = "${path.module}/icp_proxy_scaler.sh"
+        #destination = "/tmp/icp_proxy_scaler.sh"
+    #}
+
+    provisioner "file" {
+        content     = "${join("|", openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_proxy_nodes.txt"
+    }
+
+    provisioner "file" {
+        content     = "${file("${var.openstack_ssh_key_file}")}"
+        destination = "/tmp/id_rsa.terraform"
+    }
+}
 
 #...........................................null resourse for master....................................
 
