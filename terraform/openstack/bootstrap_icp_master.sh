@@ -179,15 +179,17 @@ if [ "${if_HA}" == "false" ]; then
    /bin/echo "$IP"    >> cluster/hosts
 else
    # Configure the master node(s)   ......... similarly for proxy & management nodes
-   master_count=0
    for master_ip in $( cat /tmp/icp_master_nodes.txt | sed 's/|/\n/g' ); do
-       if [ "$master_count" -n "${install_user_password}" ]; then
-           /bin/echo "[master]"     >> cluster/hosts
-           /bin/echo "$master_ip" >> cluster/hosts
-       else
-            /bin/echo "$master_ip" >> cluster/hosts
-       fi
-       master_count=master_count+1
+       /bin/echo "[master]"     >> cluster/hosts
+       /bin/echo "$master_ip" >> cluster/hosts
+   done
+   for proxy_ip in $( cat /tmp/icp_proxy_nodes.txt | sed 's/|/\n/g' ); do
+       /bin/echo "[proxy]"     >> cluster/hosts
+       /bin/echo "$proxy_ip" >> cluster/hosts
+   done
+   for management_ip in $( cat /tmp/icp_management_nodes.txt | sed 's/|/\n/g' ); do
+       /bin/echo "[management]"     >> cluster/hosts
+       /bin/echo "$management_ip" >> cluster/hosts
    done
 fi
 
@@ -231,9 +233,9 @@ fi
 /bin/chmod 400 $ICP_ROOT_DIR/cluster/ssh_key
 
 # Deploy IBM Cloud Private   ....commenting out d install as NFS server is not mounted...without which the install will give storage error
-#cd "$ICP_ROOT_DIR/cluster"
-#/usr/bin/docker run -e LICENSE=accept --net=host -t -v \
-    #"$(pwd)":/installer/cluster $ICP_DOCKER_IMAGE install | \
-    #/usr/bin/tee install.log
+cd "$ICP_ROOT_DIR/cluster"
+/usr/bin/docker run -e LICENSE=accept --net=host -t -v \
+    "$(pwd)":/installer/cluster $ICP_DOCKER_IMAGE install | \
+    /usr/bin/tee install.log
 
 exit 0
