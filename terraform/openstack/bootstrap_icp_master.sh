@@ -171,7 +171,7 @@ if [ "${icp_edition}" == "ee" ]; then
     /bin/rm -rf "$TMP_DIR"
 fi
 
-cd ./cluster || exit
+cd ./cluster
 # Remove the content of the hosts file
 > ./hosts
 cd "$ICP_ROOT_DIR"
