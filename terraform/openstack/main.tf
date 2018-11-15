@@ -65,37 +65,6 @@ resource "openstack_compute_instance_v2" "icp-worker-vm" {
         }
     }
 }
-#.............................................................................................................
-
-resource "null_resource" "icp-worker-scaler" {
-    triggers {
-        workers = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
-    }
-
-    connection {
-        type            = "ssh"
-        user            = "${var.icp_install_user}"
-        #host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}" #......... master?
-        host            = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}"
-        private_key     = "${file(var.openstack_ssh_key_file)}"
-        timeout         = "15m"
-    }
-
-    provisioner "file" {
-        source      = "${path.module}/icp_worker_scaler.sh"
-        destination = "/tmp/icp_worker_scaler.sh"
-    }
-
-    provisioner "file" {
-        content     = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
-        destination = "/tmp/icp_worker_nodes.txt"
-    }
-
-    provisioner "file" {
-        content     = "${file("${var.openstack_ssh_key_file}")}"
-        destination = "/tmp/id_rsa.terraform"
-    }
-}
 
 resource "openstack_compute_instance_v2" "icp-master-vm" {
     #count     = "${var.icp_num_masters}"        #....addition
@@ -191,7 +160,7 @@ data "template_file" "bootstrap_node" {
 }
 resource "null_resource" "icp-proxy-scaler" {
     triggers {
-        workers = "${join("|", openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4)}"
+        proxies = "${join("|", openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4)}"
     }
 
     connection {
@@ -239,7 +208,7 @@ resource "openstack_compute_instance_v2" "icp-management-vm" {
 
 resource "null_resource" "icp-management-scaler" {
     triggers {
-        workers = "${join("|", openstack_compute_instance_v2.icp-management-vm.*.network.0.fixed_ip_v4)}"
+        managements = "${join("|", openstack_compute_instance_v2.icp-management-vm.*.network.0.fixed_ip_v4)}"
     }
 
     connection {
@@ -272,7 +241,7 @@ resource "null_resource" "icp-management-scaler" {
 
 resource "null_resource" "icp-master-scaler" {
     triggers {
-        workers = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
+        masters = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
     }
 
     connection {
@@ -295,6 +264,38 @@ resource "null_resource" "icp-master-scaler" {
     }
 
     #commenting the below part as I want every vm to create it's own key. Not sure if this would conflict.
+    provisioner "file" {
+        content     = "${file("${var.openstack_ssh_key_file}")}"
+        destination = "/tmp/id_rsa.terraform"
+    }
+}
+
+#.............................................................................................................
+
+resource "null_resource" "icp-worker-scaler" {
+    triggers {
+        workers = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
+    }
+
+    connection {
+        type            = "ssh"
+        user            = "${var.icp_install_user}"
+        #host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}" #......... master?
+        host            = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}"
+        private_key     = "${file(var.openstack_ssh_key_file)}"
+        timeout         = "15m"
+    }
+
+    provisioner "file" {
+        source      = "${path.module}/icp_worker_scaler.sh"
+        destination = "/tmp/icp_worker_scaler.sh"
+    }
+
+    provisioner "file" {
+        content     = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_worker_nodes.txt"
+    }
+
     provisioner "file" {
         content     = "${file("${var.openstack_ssh_key_file}")}"
         destination = "/tmp/id_rsa.terraform"
