@@ -20,3 +20,11 @@ output "icp-master-vm-ip" {
 output "icp-worker-vm-ips" {
    value = "${openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4}"
 }
+
+output "icp-proxy-vm-ip" {
+    value = "${openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4}"
+}
+
+output "icp-management-vm-ip" {
+    value = "${openstack_compute_instance_v2.icp-management-vm.*.network.0.fixed_ip_v4}"
+}
