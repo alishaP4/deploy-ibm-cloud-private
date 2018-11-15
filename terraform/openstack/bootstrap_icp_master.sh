@@ -186,18 +186,18 @@ if [ "${if_HA}" == "false" ]; then
    /bin/echo "$IP"    >> cluster/hosts
 else
    # Configure the master node(s)   ......... similarly for proxy & management nodes
+   /bin/echo "[master]"     >> cluster/hosts
    for master_ip in $( cat /tmp/icp_master_nodes.txt | sed 's/|/\n/g' ); do
-       /bin/echo "[master]"     >> cluster/hosts
        /bin/echo "$master_ip" >> cluster/hosts
        #/bin/echo "$master_ip $(hostname)" >> /etc/hosts     #hostname of the VM
    done
+   /bin/echo "[proxy]"     >> cluster/hosts
    for proxy_ip in $( cat /tmp/icp_proxy_nodes.txt | sed 's/|/\n/g' ); do
-       /bin/echo "[proxy]"     >> cluster/hosts
        /bin/echo "$proxy_ip" >> cluster/hosts
        #/bin/echo "$proxy_ip $(hostname)" >> /etc/hosts
    done
+   /bin/echo "[management]"     >> cluster/hosts
    for management_ip in $( cat /tmp/icp_management_nodes.txt | sed 's/|/\n/g' ); do
-       /bin/echo "[management]"     >> cluster/hosts
        /bin/echo "$management_ip" >> cluster/hosts
        #/bin/echo "$management_ip $(hostname)" >> /etc/hosts
    done
