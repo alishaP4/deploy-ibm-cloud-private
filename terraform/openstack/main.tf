@@ -167,7 +167,7 @@ resource "null_resource" "icp-proxy-scaler" {
         type            = "ssh"
         user            = "${var.icp_install_user}"
         #host            = "${openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4}"
-        host            = "${openstack_compute_instance_v2.icp-proxy-vm.0.network.0.fixed_ip_v4}"
+        host            = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}"
         private_key     = "${file(var.openstack_ssh_key_file)}"
         timeout         = "15m"
     }
@@ -215,7 +215,7 @@ resource "null_resource" "icp-management-scaler" {
         type            = "ssh"
         user            = "${var.icp_install_user}"
         #host            = "${openstack_compute_instance_v2.icp-management-vm.*.network.0.fixed_ip_v4}"
-        host            = "${openstack_compute_instance_v2.icp-management-vm.0.network.0.fixed_ip_v4}"
+        host            = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}"
         private_key     = "${file(var.openstack_ssh_key_file)}"
         timeout         = "15m"
     }
