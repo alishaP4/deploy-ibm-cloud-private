@@ -171,10 +171,10 @@ if [ "${icp_edition}" == "ee" ]; then
     /bin/rm -rf "$TMP_DIR"
 fi
 
-cd ./cluster
+#cd ./cluster
 # Remove the content of the hosts file
-> ./hosts
-cd "$ICP_ROOT_DIR"
+#> ./hosts
+#cd "$ICP_ROOT_DIR"
 
 if [ "${if_HA}" == "false" ]; then
    # Configure the master and proxy as the same node
