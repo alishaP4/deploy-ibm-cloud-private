@@ -138,8 +138,9 @@ sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................t
 if [ "${icp_edition}" == "ee" ]; then
     TMP_DIR="$(/bin/mktemp -d)"
     cd "$TMP_DIR"
-    /usr/bin/wget -q "${icp_download_location}"
-    /bin/tar xf *.tar.gz -O | /usr/bin/docker load
+    #/usr/bin/wget -q "${icp_download_location}"
+    #/bin/tar xf *.tar.gz -O | /usr/bin/docker load
+    /bin/tar xf "${icp_download_location}".tar.gz -O | /usr/bin/docker load
 else
     /usr/bin/docker pull $ICP_DOCKER_IMAGE
 fi
