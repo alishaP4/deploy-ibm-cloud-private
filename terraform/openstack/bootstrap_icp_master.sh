@@ -233,9 +233,9 @@ fi
 /bin/chmod 400 $ICP_ROOT_DIR/cluster/ssh_key
 
 # Deploy IBM Cloud Private   ....commenting out d install as NFS server is not mounted...without which the install will give storage error
-cd "$ICP_ROOT_DIR/cluster"
-/usr/bin/docker run -e LICENSE=accept --net=host -t -v \
-    "$(pwd)":/installer/cluster $ICP_DOCKER_IMAGE install | \
-    /usr/bin/tee install.log
+#cd "$ICP_ROOT_DIR/cluster"
+#/usr/bin/docker run -e LICENSE=accept --net=host -t -v \
+    #"$(pwd)":/installer/cluster $ICP_DOCKER_IMAGE install | \
+    #/usr/bin/tee install.log
 
 exit 0
