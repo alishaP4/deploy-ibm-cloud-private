@@ -104,9 +104,19 @@ variable "if_HA" {
     default = false
 }
 
+variable "vip_iface" {
+  description = "Virtual IP for Master Console"
+  default     = "eth0"
+}
+
 variable "cluster_vip" {
   description = "Virtual IP for Master Console"
   default     = "127.0.1.1"
+}
+
+variable "proxy_vip_iface" {
+  description = "Virtual IP for Master Console" #proxy console
+  default     = "eth0"
 }
 
 variable "proxy_vip" {
