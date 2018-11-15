@@ -99,7 +99,9 @@ data "template_file" "bootstrap_init" {
         install_user_name = "${var.icp_install_user}"
         install_user_password = "${var.icp_install_user_password}"
         docker_download_location = "${var.docker_download_location}"
+        vip_iface = "${var.vip_iface}"
         cluster_vip = "${var.cluster_vip}"
+        proxy_vip_iface = "${var.proxy_vip_iface}"
         proxy_vip = "${var.proxy_vip}"
         if_HA = "${var.if_HA}"
 	reg_path = "${var.reg_path}"				#10.56.0.55:/var/nfs/icp/registry
