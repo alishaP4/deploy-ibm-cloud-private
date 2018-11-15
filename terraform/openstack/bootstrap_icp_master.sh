@@ -128,9 +128,11 @@ fi
 
 # Ensure the hostnames are resolvable
 #IP=`/sbin/ip -4 -o addr show dev eth0 | awk '{split($4,a,"/");print a[1]}'`
-IP=`/sbin/ip -4 -o addr show dev enp0s1 | awk '{split($4,a,"/");print a[1]}'`
 #IP=`ifconfig `ip route | grep default | head -1 | sed 's/\(.*dev \)\([a-z0-9]*\)\(.*\)/\2/g'` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1`
-/bin/echo "$IP $(hostname)" >> /etc/hosts
+if [ "${if_HA}" == "false" ]; then
+    IP=`/sbin/ip -4 -o addr show dev enp0s1 | awk '{split($4,a,"/");print a[1]}'`
+    /bin/echo "$IP $(hostname)" >> /etc/hosts
+fi
 sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
 sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................test it out
 
