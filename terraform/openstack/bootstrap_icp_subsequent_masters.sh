@@ -99,6 +99,11 @@ fi
 #IP=`ifconfig `ip route | grep default | head -1 | sed 's/\(.*dev \)\([a-z0-9]*\)\(.*\)/\2/g'` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1`
 IP=`/sbin/ip -4 -o addr show dev enp0s1 | awk '{split($4,a,"/");print a[1]}'`
 /bin/echo "$IP $(hostname)" >> /etc/hosts
+if [ "${if_HA}" == "true" ]; then
+    for master_ip in $( cat /tmp/icp_master_nodes.txt | sed 's/|/\n/g' ); do
+       /bin/echo "$master_ip $(hostname)" >> /etc/hosts
+    done
+fi
 
 sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
 sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................test it out
