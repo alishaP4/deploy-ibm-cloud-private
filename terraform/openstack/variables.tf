@@ -129,7 +129,7 @@ variable "icp_num_masters" {
     default = 1
 }
 
-variable instances {
+variable instances {#take ip
    type = "map"   
    
    default   {     
