@@ -146,7 +146,7 @@ IP=`/sbin/ip -4 -o addr show dev enp0s1 | awk '{split($4,a,"/");print a[1]}'`
     #/bin/echo "$IP $(hostname)" >> /etc/hosts
 #fi
 sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
-sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................test it out
+sed -i '/ip6-/s/^/#/g' /etc/hosts
 
 # Download and configure IBM Cloud Private
 if [ "${icp_edition}" == "ee" ]; then
@@ -162,10 +162,6 @@ fi
 cd "$ICP_ROOT_DIR"
 /usr/bin/docker run -e LICENSE=accept -v \
     "$(pwd)":/data $ICP_DOCKER_IMAGE cp -r cluster /data
- 
-# Add the ssh-key in the authorized_keys
-#cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
-#cat /tmp/id_rsa.terraform >> /root/.ssh/authorized_keys
 
 if [ "${icp_edition}" == "ee" ]; then
     /bin/mkdir -p cluster/images
@@ -187,7 +183,6 @@ if [ "${if_HA}" == "false" ]; then
    /bin/echo "[proxy]"  >> cluster/hosts
    /bin/echo "$IP"    >> cluster/hosts
 else
-   # Configure the master node(s)   ......... similarly for proxy & management nodes
    /bin/echo "[master]"     >> cluster/hosts
    for master_ip in $( cat /tmp/icp_master_nodes.txt | sed 's/|/\n/g' ); do
        /bin/echo "$master_ip" >> cluster/hosts
@@ -196,12 +191,10 @@ else
    /bin/echo "[proxy]"     >> cluster/hosts
    for proxy_ip in $( cat /tmp/icp_proxy_nodes.txt | sed 's/|/\n/g' ); do
        /bin/echo "$proxy_ip" >> cluster/hosts
-       #/bin/echo "$proxy_ip $(hostname)" >> /etc/hosts
    done
    /bin/echo "[management]"     >> cluster/hosts
    for management_ip in $( cat /tmp/icp_management_nodes.txt | sed 's/|/\n/g' ); do
        /bin/echo "$management_ip" >> cluster/hosts
-       #/bin/echo "$management_ip $(hostname)" >> /etc/hosts
    done
 fi
 
@@ -246,7 +239,7 @@ fi
     $ICP_ROOT_DIR/cluster/ssh_key
 /bin/chmod 400 $ICP_ROOT_DIR/cluster/ssh_key
 
-# Deploy IBM Cloud Private   ....commenting out d install as NFS server is not mounted...without which the install will give storage error
+# Deploy IBM Cloud Private
 cd "$ICP_ROOT_DIR/cluster"
 /usr/bin/docker run -e LICENSE=accept --net=host -t -v \
     "$(pwd)":/installer/cluster $ICP_DOCKER_IMAGE install | \
