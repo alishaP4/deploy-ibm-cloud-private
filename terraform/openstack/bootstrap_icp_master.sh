@@ -127,6 +127,7 @@ else
 fi
 
 if [ "${if_HA}" == "true" ]; then
+    /usr/bin/apt-get --assume-yes install vim        #--Remove this line later
     /usr/bin/apt-get --assume-yes install nfs-common
     /bin/mkdir -p /var/lib/registry
     /bin/mkdir -p /var/lib/icp/audit
