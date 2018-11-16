@@ -82,7 +82,6 @@ resource "openstack_compute_instance_v2" "icp-master-vm" {
         name = "${var.openstack_network_name}"
     }
     
-    #user_data = "${data.template_file.bootstrap_init.rendered}"
     user_data = "${count.index > 0 ? "${data.template_file.bootstrap_init_subsequent_masters.rendered}" : "${data.template_file.bootstrap_init.rendered}"}" 
 
 }
@@ -104,12 +103,12 @@ data "template_file" "bootstrap_init" {
         proxy_vip_iface = "${var.proxy_vip_iface}"
         proxy_vip = "${var.proxy_vip}"
         if_HA = "${var.if_HA}"
-	reg_path = "${var.reg_path}"				#10.56.0.55:/var/nfs/icp/registry
-	registry_mount_src = "${var.registry_mount_src}"	#/var/lib/registry
-	auth_audit_path = "${var.auth_audit_path}"		#10.56.0.55:/var/nfs/icp/authaudit
-	audit_mount_src = "${var.audit_mount_src}"		#/var/lib/icp/audit
-	kub_audit_path = "${var.kub_audit_path}"		#10.56.0.55:/var/nfs/icp/kubaudit
-	kub_audit_mount_src = "${var.kub_audit_mount_src}"	#/var/log/audit
+	reg_path = "${var.reg_path}"
+	registry_mount_src = "${var.registry_mount_src}"
+	auth_audit_path = "${var.auth_audit_path}"
+	audit_mount_src = "${var.audit_mount_src}"
+	kub_audit_path = "${var.kub_audit_path}"
+	kub_audit_mount_src = "${var.kub_audit_mount_src}"
     }
 }
 
@@ -224,7 +223,7 @@ resource "null_resource" "icp-management-scaler" {
         timeout         = "15m"
     }
 
-    #provisioner "file" {  				#check if u can add/delete proxy nodes
+    #provisioner "file" {
         #source      = "${path.module}/icp_management_scaler.sh"
         #destination = "/tmp/icp_management_scaler.sh"
     #}
