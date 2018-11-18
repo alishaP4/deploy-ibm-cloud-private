@@ -115,12 +115,13 @@ if [ "${if_HA}" == "true" ]; then
     /bin/mkdir -p /var/lib/registry
     /bin/mkdir -p /var/lib/icp/audit
     /bin/mkdir -p /var/log/audit
-    #/bin/mount -o tcp,mountproto=tcp,nfsvers=3 10.56.0.55:/var/nfs/icp/registry /var/lib/registry
-    #/bin/mount -o tcp,mountproto=tcp,nfsvers=3 10.56.0.55:/var/nfs/icp/authaudit /var/lib/icp/audit
-    #/bin/mount -o tcp,mountproto=tcp,nfsvers=3 10.56.0.55:/var/nfs/icp/kubaudit /var/log/audit
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${reg_path}" "${registry_mount_src}"
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${auth_audit_path}" "${audit_mount_src}"
-    /bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${kub_audit_path}" "${kub_audit_mount_src}"
+    /bin/echo '${var.reg_path} ${var.registry_mount_src}  ${var.registry_mount_type}  ${var.registry_mount_options}   0 0' | sudo tee -a /etc/fstab
+    /bin/echo '${var.auth_audit_path} ${var.audit_mount_src}  ${var.audit_mount_type}  ${var.audit_mount_options}   0 0' | sudo tee -a /etc/fstab
+    /bin/echo '${var.kub_audit_path} ${var.kub_audit_mount_src}  ${var.kub_audit_mount_type}  ${var.kub_audit_mount_options}   0 0' | sudo tee -a /etc/fstab
+    /bin/mount -a
+    #/bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${reg_path}" "${registry_mount_src}"
+    #/bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${auth_audit_path}" "${audit_mount_src}"
+    #/bin/mount -o tcp,mountproto=tcp,nfsvers=3 "${kub_audit_path}" "${kub_audit_mount_src}"
 fi
 
 exit 0
