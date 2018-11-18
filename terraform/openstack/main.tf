@@ -98,17 +98,28 @@ data "template_file" "bootstrap_init" {
         install_user_name = "${var.icp_install_user}"
         install_user_password = "${var.icp_install_user_password}"
         docker_download_location = "${var.docker_download_location}"
+
         vip_iface = "${var.vip_iface}"
         cluster_vip = "${var.cluster_vip}"
         proxy_vip_iface = "${var.proxy_vip_iface}"
         proxy_vip = "${var.proxy_vip}"
         if_HA = "${var.if_HA}"
+
 	reg_path = "${var.reg_path}"
 	registry_mount_src = "${var.registry_mount_src}"
+	registry_mount_type = "${var.registry_mount_type}"
+	registry_mount_options = "${var.registry_mount_options}"
+
 	auth_audit_path = "${var.auth_audit_path}"
 	audit_mount_src = "${var.audit_mount_src}"
+	audit_mount_type = "${var.audit_mount_type}"
+	audit_mount_options = "${var.audit_mount_options}"
+
 	kub_audit_path = "${var.kub_audit_path}"
 	kub_audit_mount_src = "${var.kub_audit_mount_src}"
+	kub_audit_mount_type = "${var.kub_audit_mount_type}"
+	kub_audit_mount_options = "${var.kub_audit_mount_options}"
+	
     }
 }
 
@@ -118,12 +129,27 @@ data "template_file" "bootstrap_init_subsequent_masters" {
 
     vars {
         if_HA = "${var.if_HA}"
+	#reg_path = "${var.reg_path}"
+	#registry_mount_src = "${var.registry_mount_src}"
+	#auth_audit_path = "${var.auth_audit_path}"
+	#audit_mount_src = "${var.audit_mount_src}"
+	#kub_audit_path = "${var.kub_audit_path}"
+	#kub_audit_mount_src = "${var.kub_audit_mount_src}"
 	reg_path = "${var.reg_path}"
 	registry_mount_src = "${var.registry_mount_src}"
+	registry_mount_type = "${var.registry_mount_type}"
+	registry_mount_options = "${var.registry_mount_options}"
+
 	auth_audit_path = "${var.auth_audit_path}"
 	audit_mount_src = "${var.audit_mount_src}"
+	audit_mount_type = "${var.audit_mount_type}"
+	audit_mount_options = "${var.audit_mount_options}"
+
 	kub_audit_path = "${var.kub_audit_path}"
 	kub_audit_mount_src = "${var.kub_audit_mount_src}"
+	kub_audit_mount_type = "${var.kub_audit_mount_type}"
+	kub_audit_mount_options = "${var.kub_audit_mount_options}"
+
         docker_download_location = "${var.docker_download_location}"
     }
 }
