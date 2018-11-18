@@ -283,8 +283,8 @@ resource "null_resource" "icp-worker-scaler" {
     connection {
         type            = "ssh"
         user            = "${var.icp_install_user}"
-        #host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}" #......... master?
-        host            = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}"
+        host            = "${openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4}" #......... master?
+        #host            = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}"#revert it back
         private_key     = "${file(var.openstack_ssh_key_file)}"
         timeout         = "15m"
     }
