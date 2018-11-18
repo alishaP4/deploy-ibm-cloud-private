@@ -236,8 +236,8 @@ if [ "${if_HA}" == "true" ]; then
     #removed the ""
     /bin/sed -i 's/.*cluster_vip:.*/cluster_vip: '${cluster_vip}'/g' cluster/config.yaml
     /bin/sed -i 's/.*proxy_vip:.*/proxy_vip: '${proxy_vip}'/g' cluster/config.yaml
-    /bin/sed -i 's/.vip_iface:.*/vip_iface: '${vip_iface}'/g' cluster/config.yaml
-    /bin/sed -i 's/.*proxyvip_iface:.*/proxy_vip_iface: '${proxy_vip_iface}'/g' cluster/config.yaml
+    /bin/sed -i 's/. vip_iface:.*/vip_iface: '${vip_iface}'/g' cluster/config.yaml
+    /bin/sed -i 's/.*proxy_vip_iface:.*/proxy_vip_iface: '${proxy_vip_iface}'/g' cluster/config.yaml
 fi
 
 # Setup the private key for the ICP cluster (injected at deploy time)
