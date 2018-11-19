@@ -91,7 +91,7 @@ variable "icp_num_workers" {
 
 variable "openstack_availability_zone" {
     description = "The availability zone"
-    default = "PowerKVM"
+    default = "power"
 }
 
 variable "openstack_security_groups" {
@@ -105,37 +105,37 @@ variable "if_HA" {
 }
 
 variable "vip_iface" {
-  description = "Virtual IP for Master Console"
+  description = "Sets the virtual IP interface for IBM Cloud Private HA environment"
   default     = "eth0"
 }
 
 variable "cluster_vip" {
-  description = "Virtual IP for Master Console"
+  description = "Sets the virtual IP address for IBM Cloud Private HA environment"
   default     = "127.0.1.1"
 }
 
 variable "proxy_vip_iface" {
-  description = "Virtual IP for Master Console" #proxy console
+  description = "Sets the virtual IP interface for a proxy node HA environment"
   default     = "eth0"
 }
 
 variable "proxy_vip" {
-  description = "Virtual IP for Master Console" #proxy console
+  description = "Sets the virtual IP address for a proxy node HA environment"
   default     = "127.0.1.1"
 }
 
 variable "icp_num_masters" {
-    description = "The number of ICP master nodes to provision"
+    description = "The number of ICP master nodes to provision. For cluster or master high availability, you need 3, 5 or 7 master nodes"
     default = 1
 }
 
-variable instances {#take ip
-   type = "map"   
+#variable instances {#take ip
+   #type = "map"   
    
-   default   {     
-   backend = "3"   
-   } 
- }
+   #default   {     
+   #backend = "3"   
+   #} 
+ #}
 
 variable "icp_num_proxy" {
     description = "The number of ICP proxy nodes to provision"
