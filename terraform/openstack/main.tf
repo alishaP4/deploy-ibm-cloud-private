@@ -159,6 +159,7 @@ data "template_file" "bootstrap_worker" {
     template = "${file("bootstrap_icp_worker.sh")}"
 
     vars {
+        vip_iface = "${var.vip_iface}"
         if_HA = "${var.if_HA}"
         docker_download_location = "${var.docker_download_location}"
     }
