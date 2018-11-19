@@ -111,7 +111,7 @@ if [ "${if_HA}" == "true" ]; then
 fi
 
 sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
-sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................test it out
+sed -i '/ip6-/s/^/#/g' /etc/hosts
 
 #cat /tmp/id_rsa.terraform >> /root/.ssh/authorized_keys
 
