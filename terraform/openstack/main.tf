@@ -128,6 +128,7 @@ data "template_file" "bootstrap_init_subsequent_masters" {
     template = "${file("bootstrap_icp_subsequent_masters.sh")}"
 
     vars {
+        vip_iface = "${var.vip_iface}"
         if_HA = "${var.if_HA}"
 	#reg_path = "${var.reg_path}"
 	#registry_mount_src = "${var.registry_mount_src}"
@@ -183,6 +184,7 @@ data "template_file" "bootstrap_node" {
     template = "${file("bootstrap_icp_node.sh")}"		#use a common file for proxy, management, even worker if possible
 
     vars {
+        vip_iface = "${var.vip_iface}"
         if_HA = "${var.if_HA}"
         docker_download_location = "${var.docker_download_location}"
     }
