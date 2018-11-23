@@ -151,19 +151,19 @@ IP=`/sbin/ip -4 -o addr show dev ${vip_iface} | awk '{split($4,a,"/");print a[1]
 sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
 sed -i '/ip6-/s/^/#/g' /etc/hosts
 
-/bin/touch /etc/temp_hosts
-/bin/chmod -R 777 /etc/temp_hosts
+#/bin/touch /etc/temp_hosts
+#/bin/chmod -R 777 /etc/temp_hosts
 
-if [ "${if_HA}" == "true" ]; then
-   for management_ip in $( cat /tmp/icp_management_nodes.txt | sed 's/|/\n/g' ); do
-       /bin/scp -r -i /tmp/id_rsa.terraform /tmp/id_rsa.terraform $icp_install_user@$management_ip:/tmp/  #copy key to other nodes
-       /bin/ssh -i /tmp/id_rsa.terraform $icp_install_user@$management_ip                    #go inside other nodes
-       /bin/chmod -R 400 /tmp/id_rsa.terraform                                               #change permissions of the copied key
-       /bin/echo "$management_ip $(hostname)" | ssh -i /tmp/id_rsa.terraform $icp_install_user@$IP "cat > /etc/temp_hosts"
-       /bin/exit
-       /bin/cat /etc/temp_hosts >> /etc/hosts          #u are on the boot node
-   done
-fi
+#if [ "${if_HA}" == "true" ]; then
+   #for management_ip in $( cat /tmp/icp_management_nodes.txt | sed 's/|/\n/g' ); do
+       #/bin/scp -r -i /tmp/id_rsa.terraform /tmp/id_rsa.terraform $icp_install_user@$management_ip:/tmp/  #copy key to other nodes
+       #/bin/ssh -i /tmp/id_rsa.terraform $icp_install_user@$management_ip                    #go inside other nodes
+       #/bin/chmod -R 400 /tmp/id_rsa.terraform                                               #change permissions of the copied key
+       #/bin/echo "$management_ip $(hostname)" | ssh -i /tmp/id_rsa.terraform $icp_install_user@$IP "cat > /etc/temp_hosts"
+       #/bin/exit
+       #/bin/cat /etc/temp_hosts >> /etc/hosts          #u are on the boot node
+   #done
+#fi
 
 # Download and configure IBM Cloud Private
 if [ "${icp_edition}" == "ee" ]; then
@@ -250,6 +250,8 @@ if [ "${if_HA}" == "true" ]; then
     #/bin/sed -i 's/.*vip_iface:.*/vip_iface: "'${vip_iface}'"/g' cluster/config.yaml
     #/bin/sed -i 's/.*proxy_vip_iface:.*/proxy_vip_iface: "'${proxy_vip_iface}'"/g' cluster/config.yaml
     #removed the ""
+    /bin/sed -i 's/. cluster_lb_address:.*/cluster_lb_address: '${load_balancer_ip}'/g' cluster/config.yaml
+    /bin/sed -i 's/. proxy_lb_address:.*/proxy_lb_address: '${load_balancer_ip}'/g' cluster/config.yaml
     /bin/sed -i 's/.*cluster_vip:.*/cluster_vip: '${cluster_vip}'/g' cluster/config.yaml
     /bin/sed -i 's/.*proxy_vip:.*/proxy_vip: '${proxy_vip}'/g' cluster/config.yaml
     /bin/sed -i 's/. vip_iface:.*/vip_iface: '${vip_iface}'/g' cluster/config.yaml
