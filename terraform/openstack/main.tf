@@ -99,7 +99,8 @@ data "template_file" "bootstrap_init" {
         install_user_password = "${var.icp_install_user_password}"
         docker_download_location = "${var.docker_download_location}"
 
-        vip_iface = "${var.vip_iface}"
+        load_balancer_ip = "${var.load_balancer_ip}"
+	vip_iface = "${var.vip_iface}"
         cluster_vip = "${var.cluster_vip}"
         proxy_vip_iface = "${var.proxy_vip_iface}"
         proxy_vip = "${var.proxy_vip}"
