@@ -104,6 +104,11 @@ variable "if_HA" {
     default = false
 }
 
+variable "load_balancer_ip" {
+    description = "use LB in HA environment"
+    default = ""
+}
+
 variable "vip_iface" {
   description = "Sets the virtual IP interface for IBM Cloud Private HA environment"
   default     = "eth0"
