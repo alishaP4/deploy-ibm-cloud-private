@@ -104,11 +104,6 @@ variable "if_HA" {
     default = false
 }
 
-variable "load_balancer_ip" {
-    description = "use LB in HA environment"
-    default = ""
-}
-
 variable "vip_iface" {
   description = "Sets the virtual IP interface for IBM Cloud Private HA environment"
   default     = "eth0"
@@ -150,6 +145,11 @@ variable "icp_num_proxy" {
 variable "icp_num_management" {
     description = "The number of ICP management nodes to provision"
     default = 1
+}
+
+variable "icp_num_lb" {
+    description = "The number of lb nodes to provision"
+    default = ""
 }
 
 variable "registry_mount_src" {
