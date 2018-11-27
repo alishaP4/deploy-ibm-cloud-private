@@ -250,12 +250,23 @@ if [ "${if_HA}" == "true" ]; then
     #/bin/sed -i 's/.*vip_iface:.*/vip_iface: "'${vip_iface}'"/g' cluster/config.yaml
     #/bin/sed -i 's/.*proxy_vip_iface:.*/proxy_vip_iface: "'${proxy_vip_iface}'"/g' cluster/config.yaml
     #removed the ""
-    /bin/sed -i 's/. cluster_lb_address:.*/cluster_lb_address: '${load_balancer_ip}'/g' cluster/config.yaml
-    /bin/sed -i 's/. proxy_lb_address:.*/proxy_lb_address: '${load_balancer_ip}'/g' cluster/config.yaml
-    /bin/sed -i 's/.*cluster_vip:.*/cluster_vip: '${cluster_vip}'/g' cluster/config.yaml
-    /bin/sed -i 's/.*proxy_vip:.*/proxy_vip: '${proxy_vip}'/g' cluster/config.yaml
+    
     /bin/sed -i 's/. vip_iface:.*/vip_iface: '${vip_iface}'/g' cluster/config.yaml
-    /bin/sed -i 's/.*proxy_vip_iface:.*/proxy_vip_iface: '${proxy_vip_iface}'/g' cluster/config.yaml
+    
+    if [ "${if_vip}" == "true" ]; then
+        /bin/sed -i 's/.*cluster_vip:.*/cluster_vip: '${cluster_vip}'/g' cluster/config.yaml
+        /bin/sed -i 's/.*proxy_vip:.*/proxy_vip: '${proxy_vip}'/g' cluster/config.yaml
+        /bin/sed -i 's/.*proxy_vip_iface:.*/proxy_vip_iface: '${proxy_vip_iface}'/g' cluster/config.yaml
+    fi
+    
+    #................Load Balancer..................
+    if [ "${if_lb}" == "true" ]; then
+        for lb_ip in $( cat /tmp/icp_lb_nodes.txt | sed 's/|/\n/g' ); do
+            /bin/sed -i 's/. cluster_lb_address:.*/cluster_lb_address: '${lb_ip}'/g' cluster/config.yaml
+            /bin/sed -i 's/. proxy_lb_address:.*/proxy_lb_address: '${lb_ip}'/g' cluster/config.yaml
+        done
+    fi
+    
 fi
 
 # Setup the private key for the ICP cluster (injected at deploy time)
