@@ -100,7 +100,17 @@ variable "openstack_security_groups" {
 }
 
 variable "if_HA" {
-    description = "If HA configurations are required then mark it as true"
+    description = "If HA configurations are required then keep it as true"
+    default = false
+}
+
+variable "if_vip" {
+    description = "If HA configurations require VIP then keep it as true"
+    default = false
+}
+
+variable "if_lb" {
+    description = "If HA configurations require LB then keep it as true"
     default = false
 }
 
