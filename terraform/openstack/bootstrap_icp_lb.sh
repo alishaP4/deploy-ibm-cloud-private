@@ -15,81 +15,154 @@
 #
 ################################################################
 
-# Now for distro dependent stuff
-if [ -f /etc/redhat-release ]; then
-#RHEL specific steps
-        # Disable the firewall
-        systemctl stop firewalld
-        systemctl disable firewalld
-        # Make sure we're not running some old version of docker
-        yum -y remove docker docker-engine docker.io
-        # Either install the icp docker version or from the repo
-        if [ ${docker_download_location} != "" ]; then
-            TMP_DIR="$(/bin/mktemp -d)"
-            cd "$TMP_DIR"
-            /usr/bin/wget -q "${docker_download_location}"
-            chmod +x *
-            ./*.bin --install
-            /bin/rm -rf "$TMP_DIR"
-        else
-            yum -y install docker-ce
-        fi
-        systemctl start docker
-elif [ -f /etc/SuSE-release ]; then
+/usr/sbin/ufw disable
+/usr/bin/apt update
+/usr/bin/apt-get --assume-yes install haproxy
 
-else
-# Ubuntu specific steps
+HAPROXY_DIR="/etc/haproxy/"
+cd "HAPROXY_DIR"
 
-        # Disable the firewall
-        /usr/sbin/ufw disable
-        # Prepare the system for updates, install Docker and install Python
-        /usr/bin/apt update
-        # We'll use docker-ce (vs docker.io as ce/ee is what is supported by ICP)
-        # Make sure we're not running some old version of docker
-        /usr/bin/apt-get --assume-yes purge docker
-        /usr/bin/apt-get --assume-yes purge docker-engine
-        /usr/bin/apt-get --assume-yes purge docker.io
-        /usr/bin/apt-get --assume-yes install \
-        apt-transport-https \
-        ca-certificates \
-        curl \
-        software-properties-common python-minimal
+# Remove the content of the haproxy.cfg file (this is w.r.to HDC environment only)
+> ./haproxy.cfg
 
-        # Either install the icp docker version or from the repo
-        if [ ${docker_download_location} != "" ]; then
-            TMP_DIR="$(/bin/mktemp -d)"
-            cd "$TMP_DIR"
-            /usr/bin/wget -q "${docker_download_location}"
-            chmod +x *
-            ./*.bin --install
-            /bin/rm -rf "$TMP_DIR"
-        else
-            # Add Docker GPG key
-            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-            # Add the repo
-            /usr/bin/add-apt-repository \
-            "deb https://download.docker.com/linux/ubuntu \
-            $(lsb_release -cs) stable"
-            /usr/bin/apt update
-            /usr/bin/apt-get --assume-yes install docker-ce 
-        fi
-fi
+echo "
+# Example configuration for a possible web application.  See the
+# full configuration options online.
+#
+#   http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
+#
+# Global settings
+global
+      # To view messages in the /var/log/haproxy.log you need to:
+      #
+      # 1) Configure syslog to accept network log events.  This is done
+      #    by adding the '-r' option to the SYSLOGD_OPTIONS in
+      #    /etc/sysconfig/syslog.
+      #
+      # 2) Configure local2 events to go to the /var/log/haproxy.log
+      #   file. A line similar to the following can be added to
+      #   /etc/sysconfig/syslog.
+      #
+      #    local2.*                       /var/log/haproxy.log
+      #
+      log         127.0.0.1 local2
 
-# Ensure the hostname is resolvable
-#IP=`/sbin/ip -4 -o addr show dev eth0 | awk '{split($4,a,"/");print a[1]}'` # Device "eth0" does not exist in Hursley VM's
-IP=`/sbin/ip -4 -o addr show dev ${vip_iface} | awk '{split($4,a,"/");print a[1]}'`
-#With appropriate interface observed that, the above cmd gives private ip on hursley vm's and public ip on fyre vm's.
-#IP=`ifconfig `ip route | grep default | head -1 | sed 's/\(.*dev \)\([a-z0-9]*\)\(.*\)/\2/g'` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | head -1`
-/bin/echo "$IP $(hostname)" >> /etc/hosts
-if [ "${if_HA}" == "true" ]; then
-    for master_ip in $( cat /tmp/icp_master_nodes.txt | sed 's/|/\n/g' ); do
-       /bin/echo "$master_ip $(hostname)" >> /etc/hosts
-    done
-fi
+      chroot      /var/lib/haproxy
+      pidfile     /var/run/haproxy.pid
+      maxconn     4000
+      user        haproxy
+      group       haproxy
+      daemon
 
-sed -i '/127.0.1.1/s/^/#/g' /etc/hosts
-sed -i '/ip6-/s/^/#/g' /etc/hosts        #.....................................test it out
+      # 3) Turn on stats unix socket
+      stats socket /var/lib/haproxy/stats
+# Common defaults that all the 'listen' and 'backend' sections
+# use, if not designated in their block.
+  defaults
+      mode                    http
+      log                     global
+      option                  httplog
+      option                  dontlognull
+      option http-server-close
+      option                  redispatch
+      retries                 3
+      timeout http-request    10s
+      timeout queue           1m
+      timeout connect         10s
+      timeout client          1m
+      timeout server          1m
+      timeout http-keep-alive 10s
+      timeout check           10s
+      maxconn                 3000
 
-#cat /tmp/id_rsa.terraform >> /root/.ssh/authorized_keys
+  frontend k8s-api
+      bind *:8001
+      mode tcp
+      option tcplog
+      use_backend k8s-api
+
+  backend k8s-api
+      mode tcp
+      balance roundrobin
+      server server1 10.29.0.21:8001
+      server server2 10.29.0.22:8001
+      server server3 10.29.0.23:8001
+
+  frontend dashboard
+      bind *:8443
+      mode tcp
+      option tcplog
+      use_backend dashboard
+
+  backend dashboard
+      mode tcp
+      balance roundrobin
+      server server1 10.29.0.21:8443
+      server server2 10.29.0.22:8443
+      server server3 10.29.0.23:8443
+
+  frontend auth
+      bind *:9443
+      mode tcp
+      option tcplog
+      use_backend auth
+
+  backend auth
+      mode tcp
+      balance roundrobin
+      server server1 10.29.0.21:9443
+      server server2 10.29.0.22:9443
+      server server3 10.29.0.23:9443
+
+  frontend registry
+      bind *:8500
+      mode tcp
+      option tcplog
+      use_backend registry
+
+  frontend image-manager
+      bind *:8600
+      mode tcp
+      option tcplog
+      use_backend image-manager
+
+  backend image-manager
+      mode tcp
+      balance roundrobin
+      server server1 10.29.0.21:8600
+      server server2 10.29.0.22:8600
+      server server3 10.29.0.23:8600
+
+  backend registry
+      mode tcp
+      balance roundrobin
+      server server1 10.29.0.21:8500
+      server server2 10.29.0.22:8500
+      server server3 10.29.0.23:8500
+
+  frontend proxy-http
+      bind *:80
+      mode tcp
+      option tcplog
+      use_backend proxy-http
+
+  backend proxy-http
+      mode tcp
+      balance roundrobin
+      server server1 10.29.0.41:80
+      server server2 10.29.0.42:80
+
+  frontend proxy-https
+      bind *:443
+      mode tcp
+      option tcplog
+      use_backend proxy-https
+
+  backend proxy-https
+      mode tcp
+      balance roundrobin
+      server server1 10.29.0.41:443
+      server server2 10.29.0.42:443
+" >> ./haproxy.cfg
 
 exit 0
