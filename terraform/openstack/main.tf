@@ -99,7 +99,8 @@ data "template_file" "bootstrap_init" {
         install_user_password = "${var.icp_install_user_password}"
         docker_download_location = "${var.docker_download_location}"
 
-        load_balancer_ip = "${var.load_balancer_ip}"
+	if_lb = "${var.if_lb}"
+	if_vip = "${var.if_vip}"
 	vip_iface = "${var.vip_iface}"
         cluster_vip = "${var.cluster_vip}"
         proxy_vip_iface = "${var.proxy_vip_iface}"
@@ -327,6 +328,67 @@ resource "null_resource" "icp-worker-scaler" {
     provisioner "file" {
         content     = "${join("|", openstack_compute_instance_v2.icp-worker-vm.*.network.0.fixed_ip_v4)}"
         destination = "/tmp/icp_worker_nodes.txt"
+    }
+
+    provisioner "file" {
+        content     = "${file("${var.openstack_ssh_key_file}")}"
+        destination = "/tmp/id_rsa.terraform"
+    }
+}
+
+#--------------------------------------------------------------------Load balancer
+resource "openstack_compute_instance_v2" "icp-lb-vm" {
+    count     = "${var.icp_num_lb}"
+    name      = "${format("${var.instance_prefix}-lb-${random_id.rand.hex}-%02d", count.index+1)}"
+    image_id  = "${var.openstack_image_id}"
+    flavor_id = "${var.openstack_flavor_id_master_node}"      #change this to LB node , provide in variables file
+    key_pair  = "${openstack_compute_keypair_v2.icp-key-pair.name}"
+    security_groups = ["${var.openstack_security_groups}"]
+    availability_zone = "${var.openstack_availability_zone}"
+
+    network {
+        name = "${var.openstack_network_name}"
+    }
+
+    #user_data = "${data.template_file.bootstrap_node.rendered}"			#bootstrap_node
+    #not using any separate file here. As, doing scp in bootstrap_master.
+}
+#data "template_file" "bootstrap_node" {
+    #template = "${file("bootstrap_icp_node.sh")}"		#use a common file for proxy, management, even worker if possible
+
+    #vars {
+        #vip_iface = "${var.vip_iface}"
+        #if_HA = "${var.if_HA}"
+        #docker_download_location = "${var.docker_download_location}"
+    #}
+#}
+resource "null_resource" "icp-lb-scaler" {
+    triggers {
+        proxies = "${join("|", openstack_compute_instance_v2.icp-lb-vm.*.network.0.fixed_ip_v4)}"
+    }
+
+    connection {
+        type            = "ssh"
+        user            = "${var.icp_install_user}"
+        #host            = "${openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4}"
+        host            = "${openstack_compute_instance_v2.icp-master-vm.0.network.0.fixed_ip_v4}"
+        private_key     = "${file(var.openstack_ssh_key_file)}"
+        timeout         = "15m"
+    }
+
+    provisioner "file" {
+        content     = "${join("|", openstack_compute_instance_v2.icp-lb-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_lb_nodes.txt"
+    }
+
+    provisioner "file" { 		#check if this works
+        content     = "${join("|", openstack_compute_instance_v2.icp-master-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_master_nodes.txt"
+    }
+
+    provisioner "file" { 		#check if this works
+        content     = "${join("|", openstack_compute_instance_v2.icp-proxy-vm.*.network.0.fixed_ip_v4)}"
+        destination = "/tmp/icp_proxy_nodes.txt"
     }
 
     provisioner "file" {
