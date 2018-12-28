@@ -91,7 +91,8 @@ else
         "deb https://download.docker.com/linux/ubuntu \
          $(lsb_release -cs) stable"
         /usr/bin/apt update
-        /usr/bin/apt-get --assume-yes install docker-ce
+        # /usr/bin/apt-get --assume-yes install docker-ce
+        /usr/bin/apt-get --assume-yes install docker-ce=18.03.1~ce-0~ubuntu
     fi
 fi
 
